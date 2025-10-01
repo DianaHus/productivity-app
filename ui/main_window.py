@@ -51,6 +51,7 @@ class MainWindow(QMainWindow):
 
             delete_btn = QPushButton("x")
             delete_btn.setMaximumWidth(30) # smally
+            delete_btn.clicked.connect(self.delete_task)
 
             # add everything to the widget
             task_layout.addWidget(checkbox)
@@ -65,3 +66,17 @@ class MainWindow(QMainWindow):
             self.task_list.setItemWidget(list_item, task_widget)
 
             self.task_input.clear()
+
+    def delete_task(self):
+        # Get the button that was clicked
+        button = self.sender()
+        if not button:
+            return
+        # Find the widget containing the button
+        task_widget = button.parent()
+        # Find the corresponding QListWidgetItem
+        for i in range(self.task_list.count()):
+            item = self.task_list.item(i)
+            if self.task_list.itemWidget(item) == task_widget:
+                self.task_list.takeItem(i)
+                break
