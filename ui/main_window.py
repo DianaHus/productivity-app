@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget, QPushButton, QListWidgetItem, QCheckBox
+from PySide6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget, QPushButton, QListWidgetItem, QCheckBox, QStackedWidget
 from PySide6.QtCore import Qt
+from models.todo_widget import TodoWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -16,67 +17,50 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         # Let's create a vertical layout
-        layout = QVBoxLayout()
-        central_widget.setLayout(layout)
-        # label to the layout
-        welcome_label = QLabel("Welcome to my productivity app :)")
-        layout.addWidget(welcome_label)
+        main_layout = QVBoxLayout()
+        central_widget.setLayout(main_layout)
+        
+        # Navigation bar between the different views
+        nav_layout = QHBoxLayout()
 
-        # Task input:
-        self.task_input = QLineEdit()
-        self.task_input.setPlaceholderText("Write here a new task to do")
-        layout.addWidget(self.task_input)
-        # add button
-        add_button = QPushButton("Add task")
-        layout.addWidget(add_button)
-        self.task_list = QListWidget()
-        layout.addWidget(self.task_list)
-        # add to the list when button clicked
-        add_button.clicked.connect(self.add_task)
-        # add to the list when 'Enter' button pressed
-        self.task_input.returnPressed.connect(self.add_task)
+        # == Navigation Buttons ==
+        self.todo_button = QPushButton("Task List")
+        self.timer_button = QPushButton("Pomodoro Time")
 
+        nav_layout.addWidget(self.todo_button)
+        nav_layout.addWidget(self.timer_button)
+        nav_layout.addStretch() # compress buttons on left
+        
+        main_layout.addLayout(nav_layout)
 
-    def add_task(self):
-        # take input text
-        task_text = self.task_input.text()
-        # if not empty, add to list
-        if task_text:
-            task_widget = QWidget()
-            task_layout = QHBoxLayout(task_widget)
-            # checkbox
-            checkbox = QCheckBox()
+        # == Content Area ==
+        self.stacked_widget = QStackedWidget()
+        main_layout.addWidget(self.stacked_widget)
 
-            task_label = QLabel(task_text)
+        self.todo_widget = TodoWidget()
+        self.stacked_widget.addWidget(self.todo_widget)
 
-            delete_btn = QPushButton("x")
-            delete_btn.setMaximumWidth(30) # smally
-            delete_btn.clicked.connect(self.delete_task)
+        # for now placeholder for timer widget
+        placeholder_timer = QWidget()
+        self.stacked_widget.addWidget(placeholder_timer)
 
-            # add everything to the widget
-            task_layout.addWidget(checkbox)
-            task_layout.addWidget(task_label)
-            task_layout.addStretch() # elastic space
-            task_layout.addWidget(delete_btn)
+        # == connections ==
+        self.todo_button.clicked.connect(self.show_todo)
+        self.timer_button.clicked.connect(self.show_timer)
 
-            list_item = QListWidgetItem()
-            list_item.setSizeHint(task_widget.sizeHint())
+        # show todo list at start
+        self.show_todo()
 
-            self.task_list.addItem(list_item)
-            self.task_list.setItemWidget(list_item, task_widget)
+    def show_todo(self):
+        """Show todo page/view"""
+        self.stacked_widget.setCurrentWidget(self.todo_widget)
+        # hilight active button
+        self.todo_button.setStyleSheet("background-color: #e0e0e0;")
+        self.timer_button.setStyleSheet("")
 
-            self.task_input.clear()
-
-    def delete_task(self):
-        # Get the button that was clicked
-        button = self.sender()
-        if not button:
-            return
-        # Find the widget containing the button
-        task_widget = button.parent()
-        # Find the corresponding QListWidgetItem
-        for i in range(self.task_list.count()):
-            item = self.task_list.item(i)
-            if self.task_list.itemWidget(item) == task_widget:
-                self.task_list.takeItem(i)
-                break
+    def show_timer(self):
+        """Show timer page"""
+        self.stacked_widget.setCurrentIndex(1)  # Indice del placeholder timer
+        # Evidenzia il bottone attivo
+        self.timer_button.setStyleSheet("background-color: #e0e0e0;")
+        self.todo_button.setStyleSheet("")
