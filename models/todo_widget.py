@@ -72,7 +72,7 @@ class TodoWidget(QWidget):
         # find corresponding QListWidgetItem
         for i in range(self.task_list.count()):
             item = self.task_list.item(i)
-            if self.task_list.itemWidget(i) == task_widget:
+            if self.task_list.itemWidget(item) == task_widget:
                 self.task_list.takeItem(i)
                 break
 
