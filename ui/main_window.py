@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget, QPushButton, QListWidgetItem, QCheckBox, QStackedWidget
 from PySide6.QtCore import Qt
 from models.todo_widget import TodoWidget
+from models.timer_widget import TimerWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -25,7 +26,7 @@ class MainWindow(QMainWindow):
 
         # == Navigation Buttons ==
         self.todo_button = QPushButton("Task List")
-        self.timer_button = QPushButton("Pomodoro Time")
+        self.timer_button = QPushButton("Pomodoro Focus")
 
         nav_layout.addWidget(self.todo_button)
         nav_layout.addWidget(self.timer_button)
@@ -40,9 +41,8 @@ class MainWindow(QMainWindow):
         self.todo_widget = TodoWidget()
         self.stacked_widget.addWidget(self.todo_widget)
 
-        # for now placeholder for timer widget
-        placeholder_timer = QWidget()
-        self.stacked_widget.addWidget(placeholder_timer)
+        self.timer_widget = TimerWidget()
+        self.stacked_widget.addWidget(self.timer_widget)
 
         # == connections ==
         self.todo_button.clicked.connect(self.show_todo)
@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
 
     def show_timer(self):
         """Show timer page"""
-        self.stacked_widget.setCurrentIndex(1)  # Indice del placeholder timer
-        # Evidenzia il bottone attivo
+        self.stacked_widget.setCurrentWidget(self.timer_widget)
+        # hilight active button
         self.timer_button.setStyleSheet("background-color: #e0e0e0;")
         self.todo_button.setStyleSheet("")
